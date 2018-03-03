@@ -13,15 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.firebase.codelab.friendlychat;
+package com.google.firebase.codelab.friendlychat.service;
 
 import android.util.Log;
 
 import com.google.firebase.iid.FirebaseInstanceId;
-import com.google.firebase.iid.FirebaseInstanceIdService;
 import com.google.firebase.messaging.FirebaseMessaging;
 
-public class MyFirebaseInstanceIdService extends FirebaseInstanceIdService {
+public class FirebaseInstanceIdService extends com.google.firebase.iid.FirebaseInstanceIdService {
 
     private static final String TAG = "MyFirebaseIIDService";
     private static final String FRIENDLY_ENGAGE_TOPIC = "friendly_engage";

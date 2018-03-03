@@ -1,4 +1,4 @@
-package com.google.firebase.codelab.friendlychat;
+package com.google.firebase.codelab.friendlychat.adapter;
 
 import android.net.Uri;
 import android.support.annotation.NonNull;
@@ -9,7 +9,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
@@ -23,6 +22,7 @@ import com.google.firebase.appindexing.FirebaseUserActions;
 import com.google.firebase.appindexing.Indexable;
 import com.google.firebase.appindexing.builders.Indexables;
 import com.google.firebase.appindexing.builders.PersonBuilder;
+import com.google.firebase.codelab.friendlychat.R;
 import com.google.firebase.codelab.friendlychat.model.FriendlyMessage;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
