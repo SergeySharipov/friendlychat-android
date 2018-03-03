@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.firebase.codelab.friendlychat;
+package com.google.firebase.codelab.friendlychat.ui;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -21,7 +21,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -29,20 +28,15 @@ import android.text.Editable;
 import android.text.InputFilter;
 import android.text.TextWatcher;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
-import android.widget.TextView;
 
-import com.bumptech.glide.Glide;
-import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.firebase.ui.database.SnapshotParser;
 import com.google.android.gms.ads.AdRequest;
@@ -56,14 +50,11 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.analytics.FirebaseAnalytics;
-import com.google.firebase.appindexing.Action;
-import com.google.firebase.appindexing.FirebaseAppIndex;
-import com.google.firebase.appindexing.FirebaseUserActions;
-import com.google.firebase.appindexing.Indexable;
-import com.google.firebase.appindexing.builders.Indexables;
-import com.google.firebase.appindexing.builders.PersonBuilder;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.codelab.friendlychat.MessagesRecyclerViewAdapter;
+import com.google.firebase.codelab.friendlychat.R;
+import com.google.firebase.codelab.friendlychat.model.FriendlyMessage;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -77,26 +68,11 @@ import com.google.firebase.storage.UploadTask;
 import java.util.HashMap;
 import java.util.Map;
 
-import de.hdodenhof.circleimageview.CircleImageView;
+import static com.google.firebase.codelab.friendlychat.Constants.FRIENDLY_MSG_LENGTH;
 
 public class MainActivity extends AppCompatActivity implements
         GoogleApiClient.OnConnectionFailedListener {
-
-    public static class MessageViewHolder extends RecyclerView.ViewHolder {
-        TextView messageTextView;
-        ImageView messageImageView;
-        TextView messengerTextView;
-        CircleImageView messengerImageView;
-
-        public MessageViewHolder(View v) {
-            super(v);
-            messageTextView = (TextView) itemView.findViewById(R.id.messageTextView);
-            messageImageView = (ImageView) itemView.findViewById(R.id.messageImageView);
-            messengerTextView = (TextView) itemView.findViewById(R.id.messengerTextView);
-            messengerImageView = (CircleImageView) itemView.findViewById(R.id.messengerImageView);
-        }
-    }
-
+    
     private static final String TAG = "MainActivity";
     public static final String MESSAGES_CHILD = "messages";
     private static final int REQUEST_INVITE = 1;
@@ -104,7 +80,8 @@ public class MainActivity extends AppCompatActivity implements
     public static final int DEFAULT_MSG_LENGTH_LIMIT = 10;
     public static final String ANONYMOUS = "anonymous";
     private static final String MESSAGE_SENT_EVENT = "message_sent";
-    private static final String MESSAGE_URL = "http://friendlychat.firebase.google.com/message/";
+
+
     private static final String LOADING_IMAGE_URL = "https://www.google.com/images/spin-32.gif";
 
     private String mUsername;
@@ -114,7 +91,7 @@ public class MainActivity extends AppCompatActivity implements
     private Button mSendButton;
     private RecyclerView mMessageRecyclerView;
     private LinearLayoutManager mLinearLayoutManager;
-    private FirebaseRecyclerAdapter<FriendlyMessage, MessageViewHolder> mFirebaseAdapter;
+    private MessagesRecyclerViewAdapter mFirebaseAdapter;
     private ProgressBar mProgressBar;
     private DatabaseReference mFirebaseDatabaseReference;
     private FirebaseAuth mFirebaseAuth;
@@ -180,73 +157,7 @@ public class MainActivity extends AppCompatActivity implements
                         .setQuery(messagesRef, parser)
                         .build();
 
-        mFirebaseAdapter = new FirebaseRecyclerAdapter<FriendlyMessage, MessageViewHolder>(options) {
-
-            @Override
-            public MessageViewHolder onCreateViewHolder(ViewGroup viewGroup, int i) {
-                LayoutInflater inflater = LayoutInflater.from(viewGroup.getContext());
-                return new MessageViewHolder(inflater.inflate(R.layout.item_message, viewGroup, false));
-            }
-
-            @Override
-            protected void onBindViewHolder(final MessageViewHolder viewHolder,
-                                            int position,
-                                            FriendlyMessage friendlyMessage) {
-
-                mProgressBar.setVisibility(ProgressBar.INVISIBLE);
-                if (friendlyMessage.getText() != null) {
-                    viewHolder.messageTextView.setText(friendlyMessage.getText());
-                    viewHolder.messageTextView.setVisibility(TextView.VISIBLE);
-                    viewHolder.messageImageView.setVisibility(ImageView.GONE);
-                } else {
-                    String imageUrl = friendlyMessage.getImageUrl();
-                    if (imageUrl.startsWith("gs://")) {
-                        StorageReference storageReference = FirebaseStorage.getInstance()
-                                .getReferenceFromUrl(imageUrl);
-                        storageReference.getDownloadUrl().addOnCompleteListener(
-                                new OnCompleteListener<Uri>() {
-                            @Override
-                            public void onComplete(@NonNull Task<Uri> task) {
-                                if (task.isSuccessful()) {
-                                    String downloadUrl = task.getResult().toString();
-                                    Glide.with(viewHolder.messageImageView.getContext())
-                                            .load(downloadUrl)
-                                            .into(viewHolder.messageImageView);
-                                } else {
-                                    Log.w(TAG, "Getting download url was not successful.",
-                                            task.getException());
-                                }
-                            }
-                        });
-                    } else {
-                        Glide.with(viewHolder.messageImageView.getContext())
-                                .load(friendlyMessage.getImageUrl())
-                                .into(viewHolder.messageImageView);
-                    }
-                    viewHolder.messageImageView.setVisibility(ImageView.VISIBLE);
-                    viewHolder.messageTextView.setVisibility(TextView.GONE);
-                }
-
-
-                viewHolder.messengerTextView.setText(friendlyMessage.getName());
-                if (friendlyMessage.getPhotoUrl() == null) {
-                    viewHolder.messengerImageView.setImageDrawable(ContextCompat.getDrawable(MainActivity.this,
-                            R.drawable.ic_account_circle_black_36dp));
-                } else {
-                    Glide.with(MainActivity.this)
-                            .load(friendlyMessage.getPhotoUrl())
-                            .into(viewHolder.messengerImageView);
-                }
-
-                if (friendlyMessage.getText() != null) {
-                    // write this message to the on-device index
-                    FirebaseAppIndex.getInstance().update(getMessageIndexable(friendlyMessage));
-                }
-
-                // log a view action on it
-                FirebaseUserActions.getInstance().end(getMessageViewAction(friendlyMessage));
-            }
-        };
+        mFirebaseAdapter = new MessagesRecyclerViewAdapter(options);
 
         mFirebaseAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
             @Override
@@ -297,7 +208,7 @@ public class MainActivity extends AppCompatActivity implements
 
         mMessageEditText = (EditText) findViewById(R.id.messageEditText);
         mMessageEditText.setFilters(new InputFilter[]{new InputFilter.LengthFilter(mSharedPreferences
-                .getInt(CodelabPreferences.FRIENDLY_MSG_LENGTH, DEFAULT_MSG_LENGTH_LIMIT))});
+                .getInt(FRIENDLY_MSG_LENGTH, DEFAULT_MSG_LENGTH_LIMIT))});
         mMessageEditText.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
@@ -339,33 +250,6 @@ public class MainActivity extends AppCompatActivity implements
                 mFirebaseAnalytics.logEvent(MESSAGE_SENT_EVENT, null);
             }
         });
-    }
-
-    private Action getMessageViewAction(FriendlyMessage friendlyMessage) {
-        return new Action.Builder(Action.Builder.VIEW_ACTION)
-                .setObject(friendlyMessage.getName(), MESSAGE_URL.concat(friendlyMessage.getId()))
-                .setMetadata(new Action.Metadata.Builder().setUpload(false))
-                .build();
-    }
-
-    private Indexable getMessageIndexable(FriendlyMessage friendlyMessage) {
-        PersonBuilder sender = Indexables.personBuilder()
-                .setIsSelf(mUsername.equals(friendlyMessage.getName()))
-                .setName(friendlyMessage.getName())
-                .setUrl(MESSAGE_URL.concat(friendlyMessage.getId() + "/sender"));
-
-        PersonBuilder recipient = Indexables.personBuilder()
-                .setName(mUsername)
-                .setUrl(MESSAGE_URL.concat(friendlyMessage.getId() + "/recipient"));
-
-        Indexable messageToIndex = Indexables.messageBuilder()
-                .setName(friendlyMessage.getText())
-                .setUrl(MESSAGE_URL.concat(friendlyMessage.getId()))
-                .setSender(sender)
-                .setRecipient(recipient)
-                .build();
-
-        return messageToIndex;
     }
 
     @Override
