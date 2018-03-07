@@ -28,6 +28,8 @@
 
         <activity android:name=".ui.SignInActivity" />
 
+        <activity android:name=".ui.SignUpActivity" />
+
         <service
             android:name=".service.FirebaseMessagingService"
             android:exported="false">

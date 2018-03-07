@@ -17,9 +17,22 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
             android:layout_marginTop="40dp"
-            android:text="@string/sign_in"
+            android:text="@string/sign_up"
             android:textSize="30sp"
             android:textStyle="bold" />
+
+        <android.support.design.widget.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <EditText
+                android:id="@+id/username_input"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/username"
+                android:maxLines="1"
+                android:singleLine="true" />
+        </android.support.design.widget.TextInputLayout>
 
         <android.support.design.widget.TextInputLayout
             android:layout_width="match_parent"
@@ -49,13 +62,19 @@
                 android:singleLine="true" />
         </android.support.design.widget.TextInputLayout>
 
-        <Button
-            android:id="@+id/sign_in_button"
+        <android.support.design.widget.TextInputLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="5dp"
-            android:text="@string/sign_in"
-            android:textAppearance="@style/TextAppearance.AppCompat.Body1" />
+            android:layout_height="wrap_content">
+
+            <EditText
+                android:id="@+id/password_input2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/password"
+                android:inputType="textPassword"
+                android:maxLines="1"
+                android:singleLine="true" />
+        </android.support.design.widget.TextInputLayout>
 
         <Button
             android:id="@+id/sign_up_button"
@@ -65,12 +84,6 @@
             android:text="@string/sign_up"
             android:textAppearance="@style/TextAppearance.AppCompat.Body1" />
 
-        <com.google.android.gms.common.SignInButton
-            android:id="@+id/sign_in_google_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:visibility="visible" />
-
     </LinearLayout>
+
 </ScrollView>

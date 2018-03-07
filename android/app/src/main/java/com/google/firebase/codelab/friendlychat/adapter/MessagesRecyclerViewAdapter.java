@@ -33,14 +33,16 @@ import static com.google.firebase.codelab.friendlychat.Constants.MESSAGE_URL;
 
 public class MessagesRecyclerViewAdapter extends FirebaseRecyclerAdapter<FriendlyMessage, MessagesRecyclerViewAdapter.MessageViewHolder> {
     private static final String TAG = "MessagesRVAdapter";
+    private String mUsername;
     /**
      * Initialize a {@link RecyclerView.Adapter} that listens to a Firebase query. See
      * {@link FirebaseRecyclerOptions} for configuration options.
      *
      * @param options
      */
-    public MessagesRecyclerViewAdapter(FirebaseRecyclerOptions<FriendlyMessage> options) {
+    public MessagesRecyclerViewAdapter(String username, FirebaseRecyclerOptions<FriendlyMessage> options) {
         super(options);
+        mUsername = username;
     }
 
     @Override
@@ -64,7 +66,6 @@ public class MessagesRecyclerViewAdapter extends FirebaseRecyclerAdapter<Friendl
     }
 
     private Indexable getMessageIndexable(FriendlyMessage friendlyMessage) {
-        String mUsername = "todo"; //todo get user name
         PersonBuilder sender = Indexables.personBuilder()
                 .setIsSelf(mUsername.equals(friendlyMessage.getName()))
                 .setName(friendlyMessage.getName())

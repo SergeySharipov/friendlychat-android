@@ -28,12 +28,12 @@ import com.google.firebase.storage.UploadTask;
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.google.firebase.codelab.friendlychat.Constants.ANONYMOUS;
 import static com.google.firebase.codelab.friendlychat.Constants.FRIENDLY_MSG_LENGTH;
 import static com.google.firebase.codelab.friendlychat.Constants.LOADING_IMAGE_URL;
 import static com.google.firebase.codelab.friendlychat.Constants.MESSAGES_CHILD;
 
 public class FirebaseHelper {
-    public static final String ANONYMOUS = "anonymous";
     private static final String TAG = "FirebaseHelper";
     private DatabaseReference mFirebaseDatabaseReference;
     private DatabaseReference mMessagesRef;
@@ -64,7 +64,9 @@ public class FirebaseHelper {
         mUsername = ANONYMOUS;
 
         if (isUserAuthorized()) {
-            mUsername = mFirebaseUser.getDisplayName();
+            if (mFirebaseUser.getDisplayName() != null) {
+                mUsername = mFirebaseUser.getDisplayName();
+            }
             if (mFirebaseUser.getPhotoUrl() != null) {
                 mPhotoUrl = mFirebaseUser.getPhotoUrl().toString();
             }
@@ -118,8 +120,8 @@ public class FirebaseHelper {
         return mFirebaseUser != null;
     }
 
-    public DatabaseReference getMessagesRef() {
-        return mMessagesRef;
+    public String getUsername() {
+        return mUsername;
     }
 
     public void singOut() {
@@ -217,9 +219,5 @@ public class FirebaseHelper {
 
     public interface OnChangeConfigListener {
         void onConfigChanged();
-    }
-
-    public interface OnMessagesUploadListener {
-        void onMessagesUploaded();
     }
 }

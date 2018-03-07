@@ -108,7 +108,7 @@ public class MainActivity extends AppCompatActivity implements
         mLinearLayoutManager = new LinearLayoutManager(this);
         mLinearLayoutManager.setStackFromEnd(true);
 
-        mMessagesRecyclerViewAdapter = new MessagesRecyclerViewAdapter(
+        mMessagesRecyclerViewAdapter = new MessagesRecyclerViewAdapter(mFirebaseHelper.getUsername(),
                 mFirebaseHelper.getFriendlyMsgFirebaseRecyclerOptions());
 
         mMessagesRecyclerViewAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {

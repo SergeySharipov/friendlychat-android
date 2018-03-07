@@ -7,6 +7,7 @@ package com.google.firebase.codelab.friendlychat;
 public interface Constants {
 
     String LOADING_IMAGE_URL = "https://www.google.com/images/spin-32.gif";
+    String ANONYMOUS = "anonymous";
 
     String MESSAGE_URL = "http://friendlychat.firebase.google.com/message/";
     String MESSAGES_CHILD = "messages";
