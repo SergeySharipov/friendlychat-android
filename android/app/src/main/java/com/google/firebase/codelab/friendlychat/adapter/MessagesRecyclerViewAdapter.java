@@ -3,12 +3,15 @@ package com.google.firebase.codelab.friendlychat.adapter;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
@@ -34,6 +37,7 @@ import static com.google.firebase.codelab.friendlychat.Constants.MESSAGE_URL;
 public class MessagesRecyclerViewAdapter extends FirebaseRecyclerAdapter<FriendlyMessage, MessagesRecyclerViewAdapter.MessageViewHolder> {
     private static final String TAG = "MessagesRVAdapter";
     private String mUsername;
+
     /**
      * Initialize a {@link RecyclerView.Adapter} that listens to a Firebase query. See
      * {@link FirebaseRecyclerOptions} for configuration options.
@@ -65,9 +69,13 @@ public class MessagesRecyclerViewAdapter extends FirebaseRecyclerAdapter<Friendl
                 .build();
     }
 
+    private boolean isSelfMessage(FriendlyMessage friendlyMessage) {
+        return mUsername.equals(friendlyMessage.getName());
+    }
+
     private Indexable getMessageIndexable(FriendlyMessage friendlyMessage) {
         PersonBuilder sender = Indexables.personBuilder()
-                .setIsSelf(mUsername.equals(friendlyMessage.getName()))
+                .setIsSelf(isSelfMessage(friendlyMessage))
                 .setName(friendlyMessage.getName())
                 .setUrl(MESSAGE_URL.concat(friendlyMessage.getId() + "/sender"));
 
@@ -88,17 +96,30 @@ public class MessagesRecyclerViewAdapter extends FirebaseRecyclerAdapter<Friendl
         private ImageView messageImageView;
         private TextView messengerTextView;
         private CircleImageView messengerImageView;
+        private CardView cardView;
 
         MessageViewHolder(View v) {
             super(v);
+            cardView = itemView.findViewById(R.id.card_view);
+
             messageTextView = itemView.findViewById(R.id.messageTextView);
             messageImageView = itemView.findViewById(R.id.messageImageView);
             messengerTextView = itemView.findViewById(R.id.messengerTextView);
             messengerImageView = itemView.findViewById(R.id.messengerImageView);
         }
 
-        void bind(FriendlyMessage friendlyMessage){
-            //todo     mProgressBar.setVisibility(ProgressBar.INVISIBLE);
+        void bind(FriendlyMessage friendlyMessage) {
+            LinearLayout.LayoutParams layoutParams =
+                    new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
+                            ViewGroup.LayoutParams.WRAP_CONTENT);
+            if (isSelfMessage(friendlyMessage)) {
+                layoutParams.gravity = Gravity.END;
+            } else {
+                layoutParams.gravity = Gravity.START;
+            }
+            layoutParams.setMargins(5,5,5,5);
+            cardView.setLayoutParams(layoutParams);
+
             if (friendlyMessage.getText() != null) {
                 messageTextView.setText(friendlyMessage.getText());
                 messageTextView.setVisibility(TextView.VISIBLE);
